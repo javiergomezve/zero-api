@@ -25,6 +25,7 @@ class VideoFactory extends Factory
             'title' => $this->faker->title(),
             'description' => $this->faker->sentence(),
             'url' => $this->faker->url,
+            'thumbnail' => $this->faker->url,
         ];
     }
 }

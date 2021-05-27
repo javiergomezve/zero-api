@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dtos\VideoPreview;
 use App\Models\Video;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,9 @@ class VideoController extends Controller
 {
     public function index()
     {
-        return Video::latest()->get();
+        $videos = Video::latest()->get()->mapInto(VideoPreview::class);
+
+        return $videos;
     }
 
     public function show(Video $video)

@@ -31,12 +31,15 @@ class ItCanGetAVideoListTest extends TestCase
      */
     public function payload_contains_videos_of_db()
     {
-        $videosCount = 2;
+        $attribuetes = [
+            'id' => 123,
+            'thumbnail' => 'http://asd.com',
+        ];
 
-        $videos = Video::factory()->times($videosCount)->create();
+        $videos = Video::factory()->create($attribuetes);
 
         $this->getJson('/api/videos')
-            ->assertJson($videos->toArray());
+            ->assertExactJson([$attribuetes]);
     }
 
     /**
