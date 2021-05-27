@@ -6,6 +6,7 @@ use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class ItCanGetAVideoListTest extends TestCase
@@ -21,7 +22,7 @@ class ItCanGetAVideoListTest extends TestCase
 
         Video::factory()->times($videosCount)->create();
 
-        $this->getJson('/api/videos')
+        $this->getJson('/api/videos?limit='.$videosCount)
             ->assertOk()
             ->assertJsonCount($videosCount);
     }
@@ -29,16 +30,16 @@ class ItCanGetAVideoListTest extends TestCase
     /**
      * @test
      */
-    public function payload_contains_videos_of_db()
+    public function video_preview_has_id_and_thumbnail()
     {
         $attribuetes = [
             'id' => 123,
             'thumbnail' => 'http://asd.com',
         ];
 
-        $videos = Video::factory()->create($attribuetes);
+        Video::factory()->create($attribuetes);
 
-        $this->getJson('/api/videos')
+        $this->getJson('/api/videos?limit=1')
             ->assertExactJson([$attribuetes]);
     }
 
@@ -59,7 +60,7 @@ class ItCanGetAVideoListTest extends TestCase
             'created_at' => Carbon::now()->subDays(1),
         ]);
 
-        $response = $this->getJson('/api/videos')
+        $response = $this->getJson('/api/videos?limit=3')
             ->assertJsonPath('0.id', $videoToDay->id)
             ->assertJsonPath('1.id', $videoYesterdey->id)
             ->assertJsonPath('2.id', $videoOneMonthOlder->id)
@@ -70,5 +71,28 @@ class ItCanGetAVideoListTest extends TestCase
         $this->assertEquals($videoToDay->id, $first['id']);
         $this->assertEquals($videoYesterdey->id, $second['id']);
         $this->assertEquals($videoOneMonthOlder->id, $third['id']);
+    }
+
+    /**
+     * @test
+     */
+    public function video_list_can_be_limited()
+    {
+        $limit = 3;
+
+        Video::factory(4)->create();
+
+        $this->getJson('/api/videos?limit='.$limit)->assertJsonCount($limit);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_return_unprocessable_when_limit_is_string()
+    {
+        Video::factory(4)->create();
+
+        $this->getJson('/api/videos?limit=string')
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }

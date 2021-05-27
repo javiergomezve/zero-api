@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Dtos\VideoPreview;
+use App\Http\Requests\VideoIndexRequest;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class VideoController extends Controller
 {
-    public function index()
+    public function index(VideoIndexRequest $request)
     {
-        $videos = Video::latest()->get()->mapInto(VideoPreview::class);
+        $videos = Video::limit($request->getLimit())
+            ->latest()->get()->mapInto(VideoPreview::class);
 
         return $videos;
     }
