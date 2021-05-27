@@ -22,7 +22,7 @@ class ItCanGetAVideoListTest extends TestCase
 
         Video::factory()->times($videosCount)->create();
 
-        $this->getJson('/api/videos?limit='.$videosCount)
+        $this->getJson('/api/videos')
             ->assertOk()
             ->assertJsonCount($videosCount);
     }
@@ -39,7 +39,7 @@ class ItCanGetAVideoListTest extends TestCase
 
         Video::factory()->create($attribuetes);
 
-        $this->getJson('/api/videos?limit=1')
+        $this->getJson('/api/videos')
             ->assertExactJson([$attribuetes]);
     }
 
@@ -60,7 +60,7 @@ class ItCanGetAVideoListTest extends TestCase
             'created_at' => Carbon::now()->subDays(1),
         ]);
 
-        $response = $this->getJson('/api/videos?limit=3')
+        $response = $this->getJson('/api/videos')
             ->assertJsonPath('0.id', $videoToDay->id)
             ->assertJsonPath('1.id', $videoYesterdey->id)
             ->assertJsonPath('2.id', $videoOneMonthOlder->id)
@@ -88,11 +88,31 @@ class ItCanGetAVideoListTest extends TestCase
     /**
      * @test
      */
-    public function it_should_return_unprocessable_when_limit_is_string()
+    public function should_return_30_videos_by_default()
     {
-        Video::factory(4)->create();
+        $limit = 30;
 
-        $this->getJson('/api/videos?limit=string')
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        Video::factory(40)->create();
+
+        $this->getJson('/api/videos')->assertJsonCount($limit);
+    }
+
+    public function providerInvalidLimits(): array
+    {
+        return [
+            'should_return_a_minimum_of_1_videos' => [3, '-1'],
+            'should_return_a_maximum_of_50_videos' => [51, '51'],
+            'it_should_return_unprocessable_when_limit_is_string' => [4, 'asd'],
+        ];
+    }
+
+    /**
+     * @dataProvider providerInvalidLimits
+     */
+    public function returnUnprocessableEntityEnErrorByLimit(int $videosCount, string $limit)
+    {
+        Video::factory($videosCount)->create();
+
+        $this->getJson('/api/videos?limit='.$limit)->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
