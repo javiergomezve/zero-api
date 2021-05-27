@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Video extends Model
 {
     use HasFactory;
+
+    protected $visible = [
+        'id', 'title', 'description', 'url', 'thumbnail',
+    ];
 }

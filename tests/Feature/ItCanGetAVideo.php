@@ -17,10 +17,18 @@ class ItCanGetAVideo extends TestCase
      */
     public function it_can_get_a_video_by_id()
     {
-        $video = Video::factory()->create();
+        $attributes = [
+            'id' => 1,
+            'title' => 'Video title',
+            'description' => 'Video description',
+            'url' => 'http://asd.com/video.mp4',
+            'thumbnail' => 'http://asd.com/video.png',
+        ];
 
-        $response = $this->get('/api/videos/'.$video->id);
+        Video::factory()->create($attributes);
 
-        $response->assertJsonFragment($video->toArray());
+        $response = $this->get('/api/videos/'.$attributes['id']);
+
+        $response->assertExactJson($attributes);
     }
 }
