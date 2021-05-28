@@ -115,4 +115,54 @@ class ItCanGetAVideoListTest extends TestCase
 
         $this->getJson('/api/videos?limit='.$limit)->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
+
+    /**
+     * @test
+     */
+    public function should_paginate_video_list()
+    {
+        Video::factory(9)->create();
+
+        $this->getJson('/api/videos?limit=5&page=2')
+            ->assertJsonCount(4);
+    }
+
+    /**
+     * @test
+     */
+    public function should_by_default_serve_the_first_page()
+    {
+        Video::factory(9)->create();
+
+        $this->getJson('/api/videos?limit=5')
+            ->assertJsonCount(5);
+    }
+
+    /**
+     * @test
+     */
+    public function should_return_0_videos_when_page_does_not_exists()
+    {
+        Video::factory(9)->create();
+
+        $this->getJson('/api/videos?limit=5&page=20')
+            ->assertJsonCount(0);
+    }
+
+    public function providerInvalidPage(): array
+    {
+        return [
+            'should_return_unprocessabel_entity_if_there_any_errors_on_page_param' => ['asd'],
+            'should_return_unprocessabel_entity_if_the_page_requested_is_zero' => ['0'],
+        ];
+    }
+
+    /**
+     * @dataProvider providerInvalidPage
+     */
+    public function should_return_unprocessabel_entity_if_there_any_errors_on_page_param(string $invalidPage)
+    {
+        $this->getJson('/api/videos?page='.$invalidPage)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
 }
