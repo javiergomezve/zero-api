@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SerieController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/videos', [VideoController::class, 'index']);
+
 Route::get('/videos/{video:id}', [VideoController::class, 'show']);
+
+Route::get('/series', [SerieController::class, 'index']);
