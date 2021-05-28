@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SerieController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\VideoSerieController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,5 @@ Route::get('/videos', [VideoController::class, 'index']);
 Route::get('/videos/{video:id}', [VideoController::class, 'show']);
 
 Route::get('/series', [SerieController::class, 'index']);
+
+Route::get('/series/{serie}/videos', [VideoSerieController::class, 'index']);
