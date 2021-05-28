@@ -12,11 +12,7 @@ class VideoController extends Controller
 {
     public function index(VideoIndexRequest $request)
     {
-        $offset = ($request->getPage() - 1) * $request->getLimit();
-
-        $videos = Video::limit($request->getLimit())
-            ->offset($offset)
-            ->latest()
+        $videos = Video::last($request->getLimit(), $request->getPage())
             ->get()
             ->mapInto(VideoPreview::class);
 
